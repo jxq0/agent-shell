@@ -53,6 +53,29 @@ starting the CodeBuddy agent process."
   :type '(repeat string)
   :group 'agent-shell)
 
+(defcustom agent-shell-codebuddy-default-model-id
+  nil
+  "Default CodeBuddy model ID.
+
+Must be one of the model ID's displayed under \"Available models\"
+when starting a new shell.
+
+Can be set to either a string or a function that returns a string."
+  :type '(choice (const nil) string function)
+  :group 'agent-shell)
+
+(defcustom agent-shell-codebuddy-default-mode-id
+  nil
+  "Default session mode ID for CodeBuddy.
+
+Must be one of the mode ID's displayed under \"Available modes\"
+when starting a new shell.
+
+Set to nil to let the agent use its own default."
+  :type '(choice (const :tag "Agent default" nil)
+                 string)
+  :group 'agent-shell)
+
 (defun agent-shell-codebuddy-make-agent-config ()
   "Create a CodeBuddy agent configuration.
 
@@ -67,6 +90,10 @@ Returns an agent configuration alist using `agent-shell-make-agent-config'."
    :welcome-function #'agent-shell-codebuddy--welcome-message
    :client-maker (lambda (buffer)
                    (agent-shell-codebuddy-make-client :buffer buffer))
+   :default-model-id (lambda () (if (functionp agent-shell-codebuddy-default-model-id)
+                                    (funcall agent-shell-codebuddy-default-model-id)
+                                  agent-shell-codebuddy-default-model-id))
+   :default-session-mode-id (lambda () agent-shell-codebuddy-default-mode-id)
    :install-instructions "Install the CodeBuddy CLI and ensure it supports ACP mode (for example, `codebuddy --acp`). See https://www.codebuddy.ai/docs/zh/ide/Getting-Started/Installation for installation."))
 
 (defun agent-shell-codebuddy-start-agent ()
